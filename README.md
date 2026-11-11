@@ -7,8 +7,7 @@ produto a ser bem ou mal avaliado, classificando cada avaliação por **sentimen
 (qualidade, sabor, preço, entrega, embalagem). O app também permite **fazer perguntas em linguagem
 natural** sobre as avaliações, com respostas que citam as avaliações usadas como fonte (RAG).
 
-> **Status:** em desenvolvimento. Amostra e embeddings prontos; classificação com LLM em andamento
-> (cerca de 800 de 3.000 avaliações). Os números abaixo são parciais.
+**🔗 Demo:** [raio-x-avaliacoes-amazon.streamlit.app](https://raio-x-avaliacoes-amazon.streamlit.app/)
 
 ## O que o app mostra
 
@@ -19,8 +18,18 @@ natural** sobre as avaliações, com respostas que citam as avaliações usadas 
 - **Pergunte às avaliações:** perguntas como *"Do que as pessoas mais reclamam nos cafés?"*, com
   filtros por sentimento e aspecto e as avaliações usadas como fonte.
 
-**Primeiros resultados (parciais, ~800 avaliações):** 44% têm texto negativo, e **sabor** e
-**qualidade** concentram a maior parte das críticas, bem à frente de preço, embalagem e entrega.
+## Principais resultados
+
+Em 3.000 avaliações classificadas (600 por nota):
+
+- **Qualidade e sabor concentram as críticas:** juntos somam 1.632 menções negativas, bem à frente de
+  preço (258), embalagem (163) e entrega (117).
+- **Embalagem é o aspecto com maior proporção de críticas:** 53% das menções a embalagem são negativas,
+  contra 38% das menções a sabor. Ela aparece pouco, mas quando aparece costuma ser motivo de reclamação.
+- **As avaliações de 3 estrelas são as mais ambíguas:** 66% têm texto neutro e 26% negativo, ou seja,
+  a nota "média" esconde mais insatisfação do que elogio.
+- **Nota e texto quase sempre concordam:** só 0,8% das avaliações têm nota alta com texto negativo
+  (ou o contrário), o que indica que a classificação do LLM é consistente com a nota dada pelo cliente.
 
 ## Como funciona
 
