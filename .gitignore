@@ -4,3 +4,9 @@
 *.parquet
 __pycache__/
 .venv/
+*.sqlite
+data/interim/
+
+# Exceção: os resultados processados (pequenos) vão para o repositório,
+# pois o app publicado lê esses arquivos.
+!data/processed/*.parquet
