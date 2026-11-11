@@ -1,6 +1,6 @@
 """Busca semântica e resposta em linguagem natural sobre as avaliações (RAG).
 
-1. A pergunta vira um embedding.
+1. A pergunta vira um embedding (modelo local multilíngue).
 2. Encontramos as avaliações mais parecidas em significado (similaridade de cosseno).
 3. O LLM responde usando só essas avaliações, citando de onde tirou cada ponto.
 """
@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 from google.genai import types
 
-from gemini import MODELO, MODELO_EMBEDDING, cliente, com_tentativas
+from gemini import MODELO, cliente, com_tentativas
+from vetores import vetorizar
 
 RAIZ = Path(__file__).resolve().parents[1]
 PROCESSADOS = RAIZ / "data" / "processed"
-DIMENSOES = 768
 
 INSTRUCOES = """Você é um analista de experiência do cliente. Responda à pergunta em
 português usando APENAS as avaliações fornecidas. Resuma os padrões (o que se repete),
@@ -34,14 +34,7 @@ def carregar_base() -> tuple[pd.DataFrame, np.ndarray]:
 
 
 def vetor_da_pergunta(pergunta: str) -> np.ndarray:
-    resposta = com_tentativas(
-        cliente().models.embed_content,
-        model=MODELO_EMBEDDING,
-        contents=pergunta,
-        config=types.EmbedContentConfig(task_type="RETRIEVAL_QUERY", output_dimensionality=DIMENSOES),
-    )
-    v = np.array(resposta.embeddings[0].values, dtype=np.float32)
-    return v / np.linalg.norm(v)
+    return vetorizar([pergunta])[0]
 
 
 def buscar(pergunta: str, base: pd.DataFrame, vetores: np.ndarray, k: int = 10,

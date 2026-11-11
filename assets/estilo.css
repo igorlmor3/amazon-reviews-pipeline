@@ -1,0 +1,83 @@
+/* Visual no estilo Tailwind com a paleta do Spotify: preto, cinzas escuros e verde. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --preto: #000000; --bg: #121212; --card: #181818; --card-hover: #1f1f1f; --linha: #2a2a2a;
+  --texto: #ffffff; --texto-2: #b3b3b3; --apagado: #727272;
+  --verde: #1ed760; --verde-escuro: #1db954; --vermelho: #f15e6c; --cinza: #535353;
+}
+
+html, body, [class*="st-"], .stMarkdown, button, input, textarea, select {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+}
+header[data-testid="stHeader"], footer, #MainMenu { display: none !important; }
+.block-container { max-width: 1180px; padding-top: 2rem !important; padding-bottom: 4rem; }
+
+/* Hero */
+.hero { border-radius: 1.25rem; padding: 2.25rem 2.5rem; margin-bottom: 1.5rem; border:1px solid var(--linha);
+  background: radial-gradient(circle at 90% -10%, rgba(30,215,96,.45) 0%, transparent 45%),
+              linear-gradient(180deg, #0b2e18 0%, var(--preto) 85%);
+  color: var(--texto); box-shadow: 0 20px 40px -18px rgba(0,0,0,.8); }
+.hero .eyebrow { display:inline-flex; align-items:center; gap:.4rem; font-size:.75rem; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--verde); background:rgba(30,215,96,.1);
+  border:1px solid rgba(30,215,96,.35); padding:.3rem .75rem; border-radius:999px; }
+.hero h1 { font-size: 2.4rem; line-height:1.12; font-weight: 800; letter-spacing:-.03em; margin:.9rem 0 .5rem;
+  color:var(--texto); padding:0; }
+.hero h1 .destaque { color: var(--verde); }
+.hero p { color:var(--texto-2); font-size:1.02rem; max-width: 46rem; margin:0; }
+.hero .stack { margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:.45rem; }
+.hero .stack span { font-size:.75rem; font-weight:500; color:var(--texto); background:rgba(255,255,255,.07);
+  padding:.3rem .7rem; border-radius:999px; }
+
+/* Tabs em formato de "pills", como os filtros do Spotify */
+.stTabs [role="tablist"] { gap:.5rem; background:transparent; padding:0; border:none !important; width:fit-content; }
+.stTabs [role="tab"] { padding:.45rem 1.1rem !important; border-radius:999px; border:none !important;
+  background:var(--card-hover); }
+.stTabs [role="tab"] p { font-weight:600; color:var(--texto); }
+.stTabs [role="tab"][aria-selected="true"] { background:var(--verde); }
+.stTabs [role="tab"][aria-selected="true"] p { color:var(--preto); }
+.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] { display:none; }
+
+/* Cards (containers com borda) */
+[data-testid="stVerticalBlockBorderWrapper"] { background:var(--card); border:1px solid var(--linha) !important;
+  border-radius:1rem !important; }
+
+/* KPIs */
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:.25rem 0 1rem; }
+.kpi { background:var(--card); border:1px solid var(--linha); border-radius:1rem; padding:1.1rem 1.25rem;
+  transition: background .15s ease; }
+.kpi:hover { background:var(--card-hover); }
+.kpi .label { font-size:.8rem; font-weight:500; color:var(--texto-2); }
+.kpi .value { font-size:1.9rem; font-weight:800; color:var(--texto); letter-spacing:-.03em; margin-top:.15rem; }
+.kpi .hint { font-size:.78rem; color:var(--apagado); margin-top:.1rem; }
+.kpi:first-child .value, .kpi:nth-child(4) .value { color:var(--verde); }
+.kpi.accent .value { color:var(--vermelho); }
+
+.section-title { font-size:1.05rem; font-weight:700; color:var(--texto); margin:0 0 .15rem; }
+.section-sub { font-size:.85rem; color:var(--texto-2); margin:0 0 .6rem; }
+
+/* Botões e campos */
+.stButton > button { border-radius:999px; font-weight:700; padding:.6rem 1.6rem; transition:all .15s ease; }
+.stButton > button[kind="primary"] { background:var(--verde); border-color:var(--verde); color:var(--preto); }
+.stButton > button[kind="primary"]:hover { background:#3be477; border-color:#3be477; color:var(--preto); transform:scale(1.04); }
+.stButton > button[kind="primary"]:disabled { opacity:.35; }
+[data-baseweb="input"], [data-baseweb="select"] > div { border-radius:.65rem !important; background:var(--card-hover) !important; }
+
+/* Resposta e fontes */
+.st-key-resposta { border-left:4px solid var(--verde) !important; line-height:1.65; }
+.source { background:var(--card); border:1px solid var(--linha); border-radius:.85rem; padding:.9rem 1.1rem;
+  margin-bottom:.6rem; transition: background .15s ease; }
+.source:hover { background:var(--card-hover); }
+.source .top { display:flex; justify-content:space-between; align-items:center; gap:.5rem; margin-bottom:.3rem; }
+.source .title { font-weight:600; color:var(--texto); font-size:.92rem; }
+.source .text { color:var(--texto-2); font-size:.85rem; line-height:1.55; }
+.badge { display:inline-block; font-size:.7rem; font-weight:700; padding:.15rem .55rem; border-radius:999px; white-space:nowrap; }
+.badge.positivo { background:rgba(30,215,96,.14); color:var(--verde); }
+.badge.negativo { background:rgba(241,94,108,.15); color:var(--vermelho); }
+.badge.neutro { background:rgba(255,255,255,.08); color:var(--texto-2); }
+.badge.id { background:rgba(255,255,255,.08); color:var(--texto); }
+.stars { color:var(--verde); letter-spacing:.05em; font-size:.85rem; }
+.chips { display:flex; flex-wrap:wrap; gap:.4rem; margin:.2rem 0 .9rem; }
+.chips span { font-size:.78rem; font-weight:500; color:var(--texto); background:var(--card-hover);
+  border:1px solid var(--linha); padding:.3rem .75rem; border-radius:999px; }
+.stTabs .react-aria-SelectionIndicator, .stTabs [role="tablist"]::before, .stTabs [role="tablist"]::after { display:none !important; }
