@@ -65,32 +65,37 @@ def estilizar(fig):
     return fig
 
 
+def versao_dos_dados() -> float:
+    """Muda sempre que os arquivos de dados mudam; usado para renovar o cache após um novo deploy."""
+    return max(f.stat().st_mtime for f in PROCESSADOS.glob("*") if f.is_file())
+
+
 @st.cache_data
-def carregar_classificadas() -> pd.DataFrame:
+def carregar_classificadas(versao: float) -> pd.DataFrame:
     df = pd.read_parquet(PROCESSADOS / "avaliacoes_classificadas.parquet")
     df["aspectos"] = df["aspectos"].apply(list)
     return df
 
 
 @st.cache_data
-def carregar_exemplos() -> pd.DataFrame:
+def carregar_exemplos(versao: float) -> pd.DataFrame:
     arquivo = PROCESSADOS / "respostas_exemplo.parquet"
     return pd.read_parquet(arquivo) if arquivo.exists() else pd.DataFrame(columns=["pergunta"])
 
 
 @st.cache_resource
-def carregar_busca():
+def carregar_busca(versao: float):
     return carregar_base()
 
 
 @st.cache_data(show_spinner=False, max_entries=200)
 def perguntar(pergunta: str, k: int, sentimento: str | None, aspecto: str | None):
-    base, vetores = carregar_busca()
+    base, vetores = carregar_busca(versao_dos_dados())
     encontradas = buscar(pergunta, base, vetores, k=k, sentimento=sentimento, aspecto=aspecto)
     return responder(pergunta, encontradas), encontradas
 
 
-df = carregar_classificadas()
+df = carregar_classificadas(versao_dos_dados())
 
 st.markdown(f"""
 <div class="hero">
@@ -169,7 +174,7 @@ with aba_perguntas:
     if not (PROCESSADOS / "embeddings.npz").exists():
         st.info("Os embeddings ainda não foram gerados. Rode `python src/03_embeddings.py`.")
     else:
-        exemplos = carregar_exemplos()
+        exemplos = carregar_exemplos(versao_dos_dados())
         with st.container(border=True):
             st.markdown('<p class="section-title">Pergunte às avaliações</p>'
                         '<p class="section-sub">A resposta usa só as avaliações mais relevantes e cita as fontes. '
@@ -205,7 +210,7 @@ with aba_perguntas:
             # Resposta gerada antes (src/05_respostas_exemplo.py): aparece na hora, sem chamar a API.
             linha = exemplos[exemplos["pergunta"] == exemplo].iloc[0]
             pares = json.loads(linha["fontes"])
-            base_busca, _ = carregar_busca()
+            base_busca, _ = carregar_busca(versao_dos_dados())
             similaridade = dict(pares)
             fontes = base_busca[base_busca["Id"].isin(similaridade)].copy()
             fontes["similaridade"] = fontes["Id"].map(similaridade)
