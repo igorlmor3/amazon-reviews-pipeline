@@ -19,6 +19,8 @@ from google.genai import errors, types
 from pydantic import BaseModel
 from tqdm import tqdm
 
+from gemini import avisar, espera_para
+
 load_dotenv()
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -120,11 +122,11 @@ def main() -> None:
                     return finalizar(amostra)
                 # 503 = servidor do Google sobrecarregado (temporário).
                 # 429 = limite por minuto. Espera crescente com variação aleatória.
-                espera = min(10 * 2 ** tentativa, 120) + random.uniform(0, 5)
-                print(f"\nErro {erro.code} ({modelo}); nova tentativa em {espera:.0f}s")
+                espera = espera_para(tentativa)
+                avisar(erro.code, espera, tentativa, TENTATIVAS, modelo)
                 time.sleep(espera)
         else:
-            print(f"\nLote falhou {TENTATIVAS} vezes; fica para a próxima execução.")
+            print(f"\nLote não classificado após {TENTATIVAS} tentativas; ele será refeito na próxima execução.")
             continue
 
         ids_do_lote = set(lote["Id"])

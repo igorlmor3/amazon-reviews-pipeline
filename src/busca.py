@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from google.genai import types
 
-from gemini import MODELO, cliente, com_tentativas
+from gemini import gerar
 from vetores import vetorizar
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -62,9 +62,7 @@ def responder(pergunta: str, encontradas: pd.DataFrame) -> str:
         f"[#{r.Id}] ({r.Score} estrelas) {r.Summary}: {str(r.Text)[:800]}"
         for r in encontradas.itertuples()
     )
-    resposta = com_tentativas(
-        cliente().models.generate_content,
-        model=MODELO,
+    resposta = gerar(
         contents=f"Pergunta: {pergunta}\n\nAvaliações:\n{contexto}",
         config=types.GenerateContentConfig(system_instruction=INSTRUCOES, temperature=0.2),
     )

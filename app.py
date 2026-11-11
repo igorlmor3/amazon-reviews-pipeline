@@ -3,6 +3,7 @@
 Rodar localmente:  streamlit run app.py
 """
 import html
+import json
 import os
 import re
 import sys
@@ -18,7 +19,7 @@ PROCESSADOS = RAIZ / "data" / "processed"
 
 # No Streamlit Cloud a chave vem dos "Secrets"; localmente, do .env.
 try:
-    for chave in ("GEMINI_API_KEY", "GEMINI_MODEL", "GEMINI_EMBED_MODEL"):
+    for chave in ("GEMINI_API_KEY", "GEMINI_MODEL", "GEMINI_MODEL_RESERVA"):
         if chave in st.secrets:
             os.environ[chave] = st.secrets[chave]
 except FileNotFoundError:
@@ -68,6 +69,12 @@ def carregar_classificadas() -> pd.DataFrame:
     df = pd.read_parquet(PROCESSADOS / "avaliacoes_classificadas.parquet")
     df["aspectos"] = df["aspectos"].apply(list)
     return df
+
+
+@st.cache_data
+def carregar_exemplos() -> pd.DataFrame:
+    arquivo = PROCESSADOS / "respostas_exemplo.parquet"
+    return pd.read_parquet(arquivo) if arquivo.exists() else pd.DataFrame(columns=["pergunta"])
 
 
 @st.cache_resource
@@ -161,14 +168,14 @@ with aba_perguntas:
     if not (PROCESSADOS / "embeddings.npz").exists():
         st.info("Os embeddings ainda não foram gerados. Rode `python src/03_embeddings.py`.")
     else:
+        exemplos = carregar_exemplos()
         with st.container(border=True):
             st.markdown('<p class="section-title">Pergunte às avaliações</p>'
-                        '<p class="section-sub">A resposta usa só as avaliações mais relevantes e cita as fontes.</p>'
-                        '<div class="chips"><span>Do que as pessoas mais reclamam nos cafés?</span>'
-                        '<span>Quais problemas de embalagem aparecem?</span>'
-                        '<span>O que os donos de cachorro elogiam nas rações?</span></div>',
-                        unsafe_allow_html=True)
-            pergunta = st.text_input("Sua pergunta", placeholder="Ex.: Do que as pessoas mais reclamam nos cafés?",
+                        '<p class="section-sub">A resposta usa só as avaliações mais relevantes e cita as fontes. '
+                        'Clique num exemplo ou escreva a sua pergunta.</p>', unsafe_allow_html=True)
+            exemplo = st.pills("Exemplos", exemplos["pergunta"].tolist(), label_visibility="collapsed",
+                               key="exemplo") if len(exemplos) else None
+            pergunta = st.text_input("Sua pergunta", placeholder="Ex.: O que as pessoas acham dos chás verdes?",
                                      label_visibility="collapsed")
             c1, c2, c3 = st.columns([1.2, 1, 1])
             k = c1.slider("Avaliações usadas como fonte", 5, 20, 10)
@@ -176,6 +183,7 @@ with aba_perguntas:
             aspecto = c3.selectbox("Aspecto", ["todos"] + ASPECTOS, format_func=lambda a: ROTULOS.get(a, a))
             clicou = st.button("Perguntar", type="primary", disabled=not pergunta.strip())
 
+        resposta, fontes = None, None
         if clicou:
             if st.session_state.setdefault("perguntas_feitas", 0) >= LIMITE_PERGUNTAS:
                 st.warning("Limite de perguntas desta sessão atingido (a demo usa uma cota gratuita).")
@@ -187,8 +195,21 @@ with aba_perguntas:
                                                  None if sentimento == "todos" else sentimento,
                                                  None if aspecto == "todos" else aspecto)
                 except Exception:
-                    st.error("A API do Gemini não respondeu agora (cota ou sobrecarga). Tente de novo em instantes.")
+                    st.error("O Gemini está sobrecarregado agora e não respondeu. Tente de novo em alguns "
+                             "instantes ou clique num dos exemplos, que já têm resposta pronta.")
                     st.stop()
+        elif exemplo:
+            # Resposta gerada antes (src/05_respostas_exemplo.py): aparece na hora, sem chamar a API.
+            linha = exemplos[exemplos["pergunta"] == exemplo].iloc[0]
+            pares = json.loads(linha["fontes"])
+            base_busca, _ = carregar_busca()
+            similaridade = dict(pares)
+            fontes = base_busca[base_busca["Id"].isin(similaridade)].copy()
+            fontes["similaridade"] = fontes["Id"].map(similaridade)
+            fontes = fontes.sort_values("similaridade", ascending=False)
+            resposta = linha["resposta"]
+
+        if resposta is not None:
             st.markdown('<p class="section-title" style="margin-top:1rem">Resposta</p>', unsafe_allow_html=True)
             with st.container(border=True, key="resposta"):
                 st.markdown(resposta)

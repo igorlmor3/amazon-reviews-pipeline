@@ -44,6 +44,8 @@ Reviews.csv (568 mil) ──► 01 amostra ──► 3.000 avaliações (600 por
    localmente (FastEmbed), então perguntas em português encontram avaliações em inglês.
 4. **Busca e resposta (`src/busca.py`):** compara a pergunta com as avaliações por similaridade de cosseno,
    aplica os filtros e pede ao Gemini uma resposta baseada só nas avaliações encontradas, citando as fontes.
+5. **Respostas de exemplo (`src/05_respostas_exemplo.py`):** gera antes as respostas das perguntas de exemplo
+   do app, que aparecem na hora, sem chamar a API.
 
 ## Decisões técnicas
 
@@ -51,8 +53,12 @@ Reviews.csv (568 mil) ──► 01 amostra ──► 3.000 avaliações (600 por
   API levaria semanas. 3.000 avaliações equilibradas por nota já mostram os padrões com clareza.
 - **Saída estruturada:** o LLM devolve JSON validado por schema, então não há texto para "interpretar"
   e categorias inválidas são rejeitadas.
-- **Resiliência a limites da API:** novas tentativas com espera crescente para erros 503 (sobrecarga) e
-  429 (limite por minuto), modelo reserva opcional e progresso salvo a cada lote.
+- **Resiliência a limites da API:** a API gratuita do Gemini fica sobrecarregada com frequência (503) e
+  limita o ritmo de chamadas (429). Esses erros são tratados como esperados: novas tentativas com espera
+  crescente, troca automática para um modelo reserva quando o principal segue indisponível e progresso
+  salvo a cada lote, para nunca perder trabalho.
+- **Demo que não depende da API:** o painel lê apenas dados já processados, e as perguntas de exemplo têm
+  respostas geradas antes. Só perguntas novas chamam o Gemini na hora.
 - **Embeddings locais:** a primeira versão usava a API de embeddings do Gemini, mas o limite diário do plano
   gratuito tornava a geração lenta demais. O modelo local é gratuito, sem limite e multilíngue.
 - **Proteção da cota na demo pública:** cada visitante pode fazer até 10 perguntas, e respostas iguais
@@ -75,6 +81,7 @@ python src/00_testar_api.py       # confere a chave e lista os modelos disponív
 python src/01_amostra.py          # requer o Reviews.csv do Kaggle na raiz do projeto
 python src/02_classificar.py
 python src/03_embeddings.py
+python src/05_respostas_exemplo.py
 streamlit run app.py
 ```
 
@@ -100,8 +107,9 @@ python src/04_perguntar.py "Quais problemas de embalagem aparecem?" --sentimento
     ├── 02_classificar.py   # classificação com LLM
     ├── 03_embeddings.py    # embeddings locais
     ├── 04_perguntar.py     # perguntas pelo terminal
+    ├── 05_respostas_exemplo.py  # respostas prontas dos exemplos do app
     ├── busca.py            # busca semântica + resposta (RAG)
-    ├── gemini.py           # cliente da API com novas tentativas
+    ├── gemini.py           # cliente da API: novas tentativas e modelo reserva
     └── vetores.py          # modelo de embeddings
 ```
 
