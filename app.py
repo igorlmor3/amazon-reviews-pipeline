@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from pathlib import Path
 
 import pandas as pd
@@ -194,9 +195,11 @@ with aba_perguntas:
                     resposta, fontes = perguntar(pergunta.strip(), k,
                                                  None if sentimento == "todos" else sentimento,
                                                  None if aspecto == "todos" else aspecto)
-                except Exception:
-                    st.error("O Gemini está sobrecarregado agora e não respondeu. Tente de novo em alguns "
-                             "instantes ou clique num dos exemplos, que já têm resposta pronta.")
+                except Exception as erro:
+                    traceback.print_exc()  # aparece nos logs do Streamlit Cloud ("Manage app")
+                    dica = " ou clique num dos exemplos, que já têm resposta pronta" if len(exemplos) else ""
+                    st.error(f"Não foi possível gerar a resposta agora. Tente de novo em alguns instantes{dica}.")
+                    st.caption(f"Detalhe técnico: {type(erro).__name__}: {str(erro)[:300]}")
                     st.stop()
         elif exemplo:
             # Resposta gerada antes (src/05_respostas_exemplo.py): aparece na hora, sem chamar a API.
