@@ -1,4 +1,4 @@
-# 🔎 Raio-X de Avaliações da Amazon com IA
+# Raio-X de Avaliações da Amazon com IA
 
 Este projeto transforma o texto de ~568 mil avaliações de alimentos da Amazon em análise consultável.
 
@@ -7,7 +7,7 @@ produto a ser bem ou mal avaliado, classificando cada avaliação por **sentimen
 (qualidade, sabor, preço, entrega, embalagem). O app também permite **fazer perguntas em linguagem
 natural** sobre as avaliações, com respostas que citam as avaliações usadas como fonte (RAG).
 
-**🔗 Demo:** [raio-x-avaliacoes-amazon.streamlit.app](https://raio-x-avaliacoes-amazon.streamlit.app/)
+**Demo:** [raio-x-avaliacoes-amazon.streamlit.app](https://raio-x-avaliacoes-amazon.streamlit.app/)
 
 ## O que o app mostra
 

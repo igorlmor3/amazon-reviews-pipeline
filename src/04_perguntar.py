@@ -23,4 +23,4 @@ encontradas = buscar(args.pergunta, base, vetores, k=args.k,
 print(responder(args.pergunta, encontradas))
 print("\nFontes:")
 for r in encontradas.itertuples():
-    print(f"  #{r.Id} ({r.Score}★, similaridade {r.similaridade:.2f}) {r.Summary}")
+    print(f"  #{r.Id} ({r.Score}/5, similaridade {r.similaridade:.2f}) {r.Summary}")

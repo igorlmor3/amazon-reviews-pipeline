@@ -34,7 +34,7 @@ ROTULOS = {"preco": "preço"}
 ORDEM_SENT = ["positivo", "neutro", "negativo"]
 CORES = {"positivo": "#1ed760", "neutro": "#535353", "negativo": "#f15e6c"}
 
-st.set_page_config(page_title="Raio-X de Avaliações", page_icon="🔎", layout="wide")
+st.set_page_config(page_title="Raio-X de Avaliações", layout="wide")
 st.markdown(f"<style>{(RAIZ / 'assets' / 'estilo.css').read_text(encoding='utf-8')}</style>",
             unsafe_allow_html=True)
 
@@ -49,7 +49,7 @@ def fmt(n: int) -> str:
 
 
 def estrelas(n: int) -> str:
-    return "★" * int(n) + "☆" * (5 - int(n))
+    return f"Nota {int(n)}/5"
 
 
 def estilizar(fig):
@@ -99,7 +99,7 @@ df = carregar_classificadas(versao_dos_dados())
 
 st.markdown(f"""
 <div class="hero">
-  <span class="eyebrow">✦ IA generativa aplicada a dados reais</span>
+  <span class="eyebrow">IA generativa aplicada a dados reais</span>
   <h1><span class="destaque">Raio-X</span> de Avaliações da Amazon</h1>
   <p>{fmt(len(df))} avaliações de alimentos classificadas por um LLM por sentimento e aspecto,
   com perguntas em linguagem natural respondidas a partir das próprias avaliações.</p>
@@ -111,7 +111,7 @@ aba_painel, aba_perguntas, aba_sobre = st.tabs(["Painel", "Pergunte às avaliaç
 
 with aba_painel:
     notas = st.segmented_control("Notas", [1, 2, 3, 4, 5], default=[1, 2, 3, 4, 5],
-                                 selection_mode="multi", format_func=lambda n: f"{n} ★",
+                                 selection_mode="multi", format_func=lambda n: f"{n} estrela" + ("s" if n > 1 else ""),
                                  label_visibility="collapsed")
     dados = df[df["Score"].isin(notas or [1, 2, 3, 4, 5])]
     por_aspecto = dados.explode("aspectos").rename(columns={"aspectos": "aspecto"})
@@ -167,7 +167,7 @@ with aba_painel:
             motivos[["Score", "Summary", "motivo"]].rename(
                 columns={"Score": "Nota", "Summary": "Título original", "motivo": "Motivo (resumo do LLM)"}),
             hide_index=True, width="stretch", height=320,
-            column_config={"Nota": st.column_config.NumberColumn(format="%d ★", width="small")},
+            column_config={"Nota": st.column_config.NumberColumn(format="%d/5", width="small")},
         )
 
 with aba_perguntas:
